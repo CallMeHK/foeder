@@ -6,7 +6,7 @@ defmodule Foeder.Accounts do
   import Ecto.Query, warn: false
   alias Foeder.Repo
 
-  alias Foeder.Accounts.{User, UserToken, UserNotifier}
+  alias Foeder.Accounts.{User, UserToken, UserNotifier, UserPermissions}
 
   ## Database getters
 
@@ -74,10 +74,16 @@ defmodule Foeder.Accounts do
       {:error, %Ecto.Changeset{}}
 
   """
-  def register_user(attrs) do
-    %User{}
+  def register_user(attrs, permissions \\ []) do
+    user = %User{}
     |> User.registration_changeset(attrs)
     |> Repo.insert()
+
+    {ok?, value} = user
+    if ok? == :ok do
+      UserPermissions.create(value.id, permissions)
+    end
+    user
   end
 
   @doc """
@@ -231,7 +237,12 @@ defmodule Foeder.Accounts do
   """
   def get_user_by_session_token(token) do
     {:ok, query} = UserToken.verify_session_token_query(token)
-    Repo.one(query)
+    user_session = Repo.one(query)
+    if user_session != nil do
+      Map.get(user_session, :user)
+    else
+      user_session
+    end
   end
 
   @doc """

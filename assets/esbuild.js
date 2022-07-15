@@ -12,7 +12,7 @@ process.argv.slice(2).forEach((arg) => {
 
 // Define esbuild options + extras for watch and deploy
 let opts = {
-  entryPoints: ['js/app.js'],
+  entryPoints: ['js/app.js', 'user-admin/bootstrap.tsx'],
   bundle: true,
   logLevel: 'info',
   target: 'es2016',

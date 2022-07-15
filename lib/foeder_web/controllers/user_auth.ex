@@ -36,6 +36,17 @@ defmodule FoederWeb.UserAuth do
     |> redirect(to: user_return_to || signed_in_path(conn))
   end
 
+  def log_in_user_api(conn, user, params \\ %{}) do
+    token = Accounts.generate_user_session_token(user)
+
+    conn
+    |> renew_session()
+    |> put_session(:user_token, token)
+    |> put_session(:live_socket_id, "users_sessions:#{Base.url_encode64(token)}")
+    |> maybe_write_remember_me_cookie(token, params)
+    |> send_resp(200, "")
+  end
+
   defp maybe_write_remember_me_cookie(conn, token, %{"remember_me" => "true"}) do
     put_resp_cookie(conn, @remember_me_cookie, token, @remember_me_options)
   end
@@ -92,6 +103,22 @@ defmodule FoederWeb.UserAuth do
     {user_token, conn} = ensure_user_token(conn)
     user = user_token && Accounts.get_user_by_session_token(user_token)
     assign(conn, :current_user, user)
+  end
+
+  def build_absinthe_context(conn, _opts) do
+    current_user = conn
+                   |> Map.get(:assigns) 
+                   |> Map.get(:current_user)
+
+    old_private = Map.get(conn, :private)
+    new_private = Map.merge(old_private, %{
+      :absinthe => %{
+        :context => %{
+          current_user: current_user
+        }
+      }
+    })
+    conn |> Map.merge(%{ private: new_private })
   end
 
   defp ensure_user_token(conn) do

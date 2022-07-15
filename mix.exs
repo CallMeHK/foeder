@@ -33,6 +33,8 @@ defmodule Foeder.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:absinthe, "~> 1.7.0"},
+      {:absinthe_plug, "~> 1.5.8"},
       {:bcrypt_elixir, "~> 3.0"},
       {:phoenix, "~> 1.6.10"},
       {:phoenix_ecto, "~> 4.4"},

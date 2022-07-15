@@ -13,14 +13,47 @@ defmodule FoederWeb.Router do
     plug :fetch_current_user
   end
 
+  pipeline :spa do
+    plug :accepts, ["html"]
+    plug :fetch_session
+    plug :fetch_live_flash
+    plug :put_layout, false
+    plug :protect_from_forgery
+    plug :put_secure_browser_headers
+    plug :fetch_current_user
+    plug :build_absinthe_context
+  end
+
   pipeline :api do
     plug :accepts, ["json"]
+    plug :fetch_session
+    plug :fetch_current_user
+    plug :build_absinthe_context
   end
 
   scope "/", FoederWeb do
     pipe_through :browser
 
     get "/", PageController, :index
+  end
+
+  scope "/auth" do
+    pipe_through :api
+
+    post "/login", FoederWeb.UserSessionController, :api_login
+    post "/refresh", FoederWeb.UserSessionController, :api_refresh
+
+  end
+
+  scope "/api" do
+    pipe_through :api
+
+    forward "/graphiql", Absinthe.Plug.GraphiQL,
+      schema: FoederWeb.Schema
+
+    forward "/", Absinthe.Plug,
+      schema: FoederWeb.Schema
+
   end
 
   # Other scopes may use custom stacks.
@@ -59,6 +92,12 @@ defmodule FoederWeb.Router do
 
   ## Authentication routes
 
+  scope "/user-admin", FoederWeb do
+    pipe_through [:spa, :require_authenticated_user]
+
+    get "/", UserAdminController, :index
+  end
+
   scope "/", FoederWeb do
     pipe_through [:browser, :redirect_if_user_is_authenticated]
 
@@ -79,6 +118,7 @@ defmodule FoederWeb.Router do
     put "/users/settings", UserSettingsController, :update
     get "/users/settings/confirm_email/:token", UserSettingsController, :confirm_email
   end
+
 
   scope "/", FoederWeb do
     pipe_through [:browser]

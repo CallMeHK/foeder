@@ -7,6 +7,7 @@ defmodule Foeder.Accounts.User do
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
     field :confirmed_at, :naive_datetime
+    has_one :user_permissions, Foeder.Accounts.UserPermissions
 
     timestamps()
   end

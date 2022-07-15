@@ -57,9 +57,10 @@ defmodule Foeder.Accounts.UserToken do
   def verify_session_token_query(token) do
     query =
       from token in token_and_context_query(token, "session"),
-        join: user in assoc(token, :user),
+        left_join: user in assoc(token, :user),
+        left_join: user_permissions in assoc(user, :user_permissions),
         where: token.inserted_at > ago(@session_validity_in_days, "day"),
-        select: user
+        preload: [ user: {user, user_permissions: user_permissions} ]
 
     {:ok, query}
   end
