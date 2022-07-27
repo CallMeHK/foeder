@@ -7,6 +7,31 @@ defmodule FoederWeb.Resolvers.Authz do
     |> get_in(Enum.map(keys, &(Access.key(&1))))
   end
 
+  def get_user(resolution) do 
+    resolution 
+    |> get_in?([ 
+      :context, 
+      :current_user
+      ])
+  end
+
+  def get_user_permissions(resolution) do 
+    resolution 
+      |> get_in?([ 
+        :context, 
+        :current_user,
+        :user_permissions
+        ])
+        |> Enum.reduce([], fn perm, acc -> 
+          IO.inspect perm
+          acc
+         # if perm do
+         #   IO.inspect
+         # else
+         # end
+        end)
+  end
+
   defmacro permission(permission_set, do: expr) do
     quote do
       required_permission = var!(resolution) 

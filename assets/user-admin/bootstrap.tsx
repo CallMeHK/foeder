@@ -1,7 +1,7 @@
 import React from "react";
 import * as ReactDOM from 'react-dom/client'
-import Greeter from "./greeter";
+import { App } from "./App";
 
 const greeting = document.getElementById("greeting");
 const root = ReactDOM.createRoot(greeting);
-root.render(<Greeter name="Phoenix" />);
+root.render(<App />);
