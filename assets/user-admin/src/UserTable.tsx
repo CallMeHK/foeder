@@ -1,11 +1,16 @@
 import * as React from 'react'
 import { EditUserModal } from './EditUserModal'
-import { useGetAllUsersQuery } from '../../graphql'
+import { useGetAllUsersQuery, User } from '../../graphql'
 
 const UserTable = () => {
+    const [selectedUser, setSelectedUser] = React.useState<User | null>(null)
     const {data, loading} = useGetAllUsersQuery()
 
     if(loading) return <div>loading...</div>
+
+    const users = data?.users || []
+    const sortedUsers = [...users].sort((a, b) => parseInt(a.id) > parseInt(b.id) ? 1 : -1)
+
     return <div>
         <table className="table">
           <thead>
@@ -20,8 +25,8 @@ const UserTable = () => {
             </tr>
           </thead>
           <tbody>
-              {data?.users?.map((user) => (
-                <tr key={user.id}>
+            {sortedUsers.map((user) => (
+              <tr key={user.id} onClick={ () => setSelectedUser(user) } style={{ cursor: 'pointer' }}>
                   <td>{user.id}</td>
                   <td>{user.email}</td>
                   <td>{user.permissions.permittedActions.join(', ') || "No permissions"}</td>
@@ -33,7 +38,7 @@ const UserTable = () => {
               ))}
           </tbody>
         </table>
-        <EditUserModal/>
+      {selectedUser !== null && <EditUserModal user={selectedUser} userPermissions={data.userPermissions} onClose={() => {setSelectedUser(null)}}/>}
     </div>
 
 }

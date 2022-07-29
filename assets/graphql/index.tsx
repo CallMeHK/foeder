@@ -23,8 +23,32 @@ export type Permissions = {
   updatedAt?: Maybe<Scalars['NaiveDateTime']>;
 };
 
+export type RootMutationType = {
+  __typename?: 'RootMutationType';
+  /** Update user info */
+  updateUserInfo?: Maybe<User>;
+  /** Update user permissions */
+  updateUserPermissions?: Maybe<Permissions>;
+};
+
+
+export type RootMutationTypeUpdateUserInfoArgs = {
+  confirmedAt?: InputMaybe<Scalars['String']>;
+  email?: InputMaybe<Scalars['String']>;
+  password?: InputMaybe<Scalars['String']>;
+  userId?: InputMaybe<Scalars['ID']>;
+};
+
+
+export type RootMutationTypeUpdateUserPermissionsArgs = {
+  canAdminUsers?: InputMaybe<Scalars['Boolean']>;
+  isSuperAdmin?: InputMaybe<Scalars['Boolean']>;
+  userId: Scalars['ID'];
+};
+
 export type RootQueryType = {
   __typename?: 'RootQueryType';
+  userPermissions?: Maybe<Array<Maybe<Scalars['String']>>>;
   /** Get all users */
   users?: Maybe<Array<Maybe<User>>>;
 };
@@ -42,11 +66,22 @@ export type User = {
 export type GetAllUsersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetAllUsersQuery = { __typename?: 'RootQueryType', users?: Array<{ __typename?: 'User', id?: string | null, email?: string | null, confirmedAt?: string | null, updatedAt?: string | null, insertedAt?: string | null, permissions?: { __typename?: 'Permissions', id?: string | null, permittedActions?: Array<string | null> | null, updatedAt?: any | null } | null } | null> | null };
+export type GetAllUsersQuery = { __typename?: 'RootQueryType', userPermissions?: Array<string | null> | null, users?: Array<{ __typename?: 'User', id?: string | null, email?: string | null, confirmedAt?: string | null, updatedAt?: string | null, insertedAt?: string | null, permissions?: { __typename?: 'Permissions', id?: string | null, permittedActions?: Array<string | null> | null, updatedAt?: any | null } | null } | null> | null };
+
+export type UpdateUserInfoMutationVariables = Exact<{
+  userId: Scalars['ID'];
+  email?: InputMaybe<Scalars['String']>;
+  confirmedAt?: InputMaybe<Scalars['String']>;
+  password?: InputMaybe<Scalars['String']>;
+}>;
+
+
+export type UpdateUserInfoMutation = { __typename?: 'RootMutationType', updateUserInfo?: { __typename?: 'User', id?: string | null, email?: string | null, confirmedAt?: string | null, updatedAt?: string | null, permissions?: { __typename?: 'Permissions', id?: string | null, permittedActions?: Array<string | null> | null, updatedAt?: any | null } | null } | null };
 
 
 export const GetAllUsersDocument = gql`
     query GetAllUsers {
+  userPermissions
   users {
     id
     email
@@ -88,3 +123,52 @@ export function useGetAllUsersLazyQuery(baseOptions?: Apollo.LazyQueryHookOption
 export type GetAllUsersQueryHookResult = ReturnType<typeof useGetAllUsersQuery>;
 export type GetAllUsersLazyQueryHookResult = ReturnType<typeof useGetAllUsersLazyQuery>;
 export type GetAllUsersQueryResult = Apollo.QueryResult<GetAllUsersQuery, GetAllUsersQueryVariables>;
+export const UpdateUserInfoDocument = gql`
+    mutation UpdateUserInfo($userId: ID!, $email: String, $confirmedAt: String, $password: String) {
+  updateUserInfo(
+    userId: $userId
+    email: $email
+    confirmedAt: $confirmedAt
+    password: $password
+  ) {
+    id
+    email
+    confirmedAt
+    updatedAt
+    permissions {
+      id
+      permittedActions
+      updatedAt
+    }
+  }
+}
+    `;
+export type UpdateUserInfoMutationFn = Apollo.MutationFunction<UpdateUserInfoMutation, UpdateUserInfoMutationVariables>;
+
+/**
+ * __useUpdateUserInfoMutation__
+ *
+ * To run a mutation, you first call `useUpdateUserInfoMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateUserInfoMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateUserInfoMutation, { data, loading, error }] = useUpdateUserInfoMutation({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *      email: // value for 'email'
+ *      confirmedAt: // value for 'confirmedAt'
+ *      password: // value for 'password'
+ *   },
+ * });
+ */
+export function useUpdateUserInfoMutation(baseOptions?: Apollo.MutationHookOptions<UpdateUserInfoMutation, UpdateUserInfoMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateUserInfoMutation, UpdateUserInfoMutationVariables>(UpdateUserInfoDocument, options);
+      }
+export type UpdateUserInfoMutationHookResult = ReturnType<typeof useUpdateUserInfoMutation>;
+export type UpdateUserInfoMutationResult = Apollo.MutationResult<UpdateUserInfoMutation>;
+export type UpdateUserInfoMutationOptions = Apollo.BaseMutationOptions<UpdateUserInfoMutation, UpdateUserInfoMutationVariables>;

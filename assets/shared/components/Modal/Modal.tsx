@@ -3,19 +3,20 @@ import './Modal.css'
 
 type Props = {
 	isShowing: boolean,
-	setIsShowing: React.Dispatch<React.SetStateAction<boolean>>,
+	onClose: () => void
 	children: React.ReactNode, 
-	title: string
+	title: string,
+	maxWidth?: string
 }
 
-const Modal: React.FC<Props> = ({ isShowing, setIsShowing, children, title }) => {
+const Modal: React.FC<Props> = ({ isShowing = true, onClose, children, title, maxWidth }) => {
 	return <div id={`${title}-modal-anchor`}>
 		{isShowing && (
 		<div className="modal">
-			<div className="modal-content">
+			<div className="modal-content" style={maxWidth && {maxWidth}}>
 				<div className="modal-topbar">
 					<span className="modal-title">{title}</span>
-					<span className="close" onClick={() => setIsShowing(false)}>&times;</span>
+					<span className="close" onClick={onClose}>&times;</span>
 				</div>
 				<div className="modal-body">{children}</div>
 			</div>

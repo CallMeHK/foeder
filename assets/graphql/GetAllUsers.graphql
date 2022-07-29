@@ -1,4 +1,5 @@
 query GetAllUsers {
+	  userPermissions,
 		users {
 			id
 			email

@@ -20,4 +20,10 @@ defmodule Foeder.Accounts.UserPermissions do
         can_admin_users: has_permission.(:can_admin_users)
       } |> Repo.insert()
   end
+
+  def update(id, permissions \\ %{}) do
+    %UserPermissions{id: id}
+    |> Ecto.Changeset.change(permissions)
+    |> Repo.update()
+  end
 end
